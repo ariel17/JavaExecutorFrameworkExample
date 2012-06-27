@@ -1,4 +1,4 @@
-JavaExecutionFrameworkExample
+JavaExecutorFrameworkExample
 =============================
 
-An example of using the Execution framework in Java.
+An example of using the Executor framework in Java.

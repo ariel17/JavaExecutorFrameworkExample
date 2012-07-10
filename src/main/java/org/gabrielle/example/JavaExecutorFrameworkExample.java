@@ -9,8 +9,13 @@
 
 package org.gabrielle.example;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import java.util.Properties;
 import java.util.UUID;
@@ -39,11 +44,17 @@ import org.gabrielle.example.util.PIDFile;
 */
 public class JavaExecutorFrameworkExample extends Object { 
 
-    public static final String PROPERTIES_PATH = "resources.properties";
-
     public static final String PARAM_NAME_NTHREADS = "nthreads";
 
+    public static final String PARAM_NAME_PROPERTIES_PATH = "prop";
+
+    public static final String PARAM_NAME_PIDFILE_PATH = "pidfile";
+
+    public static final String DEFAULT_PROPERTIES_PATH = "resources.properties";
+    
     public static final int DEFAULT_NTHREADS = 1;
+
+    public static final String DEFAULT_PIDFILE_PATH = "/var/run/pid";
 
     private static final Logger logger = Logger.getLogger(
             JavaExecutorFrameworkExample.class);
@@ -52,77 +63,66 @@ public class JavaExecutorFrameworkExample extends Object {
 
     private final Properties properties = new Properties();
 
-    private PIDFile pidfile = new PIDFile();                                       
+    private final PIDFile pidfile = new PIDFile();                                       
+
+    private final UUID uuid;
 
 
     /** 
-     * Locks the PID file if avialable.
+     * Constructor.
      *
-     * @param 
-     * @return 
-     * @throws 
+     * @param uuid The unique id to use in this execution.
     */
-    public boolean lockPIDFile(final UUID uuid, final String path) throws
-        IOException {
-                                                                                
-        logger.info(String.format("UUID=%s - Locking PID file %s ...", uuid,
-                    path));
-        this.pidfile.setPath(path);
-        boolean result = this.pidfile.lock();
-        logger.info(String.format("UUID=%s - Locking PID file %s result: %s",
-                    uuid, path, result));
-        return result;
+    public JavaExecutorFrameworkExample(final UUID uuid) {
+        this.uuid = uuid;
     }
-                                                                                
-                                                                                
-    /** 
-     * Removes the PID file.
-     *
-     * @param 
-     * @return 
-     * @throws 
-    */
-    public boolean unlockPIDFile(final UUID uuid) {
-                                                                                
-        boolean result;
-        logger.info(String.format("UUID=%s - Unlocking PID file ...", uuid));
-        try {
-            result = this.pidfile.unlock();
-        }
-        catch(Exception e){
-            logger.error(String.format("UUID=%s - There was an exception " +
-                        "unlocking the PID file. See exception log for more " +
-                        "details.", uuid));
-            exceptionLogger.error(String.format("UUID=%s - There was an " +
-                            "exception unlocking the PID file: %s", uuid,
-                            ExceptionUtils.getStackTrace(e)));
-            return false;
-        }
-                                                                                
-        logger.info(String.format("UUID=%s - Unlocking PID file result: %s",
-                    uuid, result));
-        return result;
-    }
-                                                                                
-                                                                                
+
+
     /** 
      * Loads the configuration stored in a properties file using a
      * Properties object.
      *
      * @param path The path as String of Properties file.
+     * @throws IOException
     */
-    public void loadProperties(final UUID uuid, final String path) throws
+    public void loadProperties(final String path) throws
         IOException {
                                                                                 
         logger.debug(String.format("UUID=%s - Loading properties " +
                     "configuration from: '%s' ...", uuid, path));
-                                                                                
+                                                                                 
         InputStream inputStream = this.getClass().getClassLoader().
-            getResourceAsStream(path); 
+            getResourceAsStream(path);
         this.properties.load(inputStream);
         
         logger.debug(String.format("UUID=%s - Loading properties " +
                     "configuration from: '%s': SUCCESS.", uuid, path));
+    }
+    
+
+    /** 
+     * Process required tasks, with validated parameters.
+     *
+     * @param nthreads The number of threads to execute or null.
+     * @param propertiesPath The path to the available Properties file to load,
+     * if not null.
+     * @return The execution status, as integer.
+     * @throws IOException 
+    */
+    public int process(final Integer nthreads, final String propertiesPath,
+            final String pidfilePath) throws IOException {
+
+        this.loadProperties(propertiesPath);
+
+        this.pidfile.setPath(pidfilePath);
+        this.pidfile.lock();
+
+        Executor executor = Executors.newFixedThreadPool(nthreads);
+        // TODO executor.execute(runnable);
+
+        // TODO do some work
+
+        this.pidfile.unlock();
     }
 
 
@@ -134,37 +134,78 @@ public class JavaExecutorFrameworkExample extends Object {
     */
     public static int main (String [] args) {
 
+        Options options = new Options();
+        Option option;
+
         OptionBuilder.withArgName(PARAM_NAME_NTHREADS);
-        OptionBuilder.hasArg();
         OptionBuilder.withDescription("Overwrites the configured value for " +
                 "the number of threads to create.");
-        Option optNthreads = OptionBuilder.create(PARAM_NAME_NTHREADS);
-                                                                                   
-        Options options = new Options();
-        options.addOption(optNthreads);
-                                                                                   
+        option = OptionBuilder.create(PARAM_NAME_NTHREADS);
+        options.addOption(option);
+
+        OptionBuilder.withArgName(PARAM_NAME_PROPERTIES_PATH);
+        OptionBuilder.withDescription(String.format("Overwrites the default " +
+                    "path of the properties file to load. Default: %s",
+                    DEFAULT_PROPERTIES_PATH));
+        option = OptionBuilder.create(PARAM_NAME_PROPERTIES_PATH);
+        options.addOption(option);
+
+        OptionBuilder.withArgName(PARAM_NAME_PIDFILE_PATH);
+        OptionBuilder.withDescription(String.format("Overwrites the default " +
+                    "path of the PID file. Default: %s",
+                    DEFAULT_PIDFILE_PATH));
+        option = OptionBuilder.create(PARAM_NAME_PIDFILE_PATH);
+        options.addOption(option);
+
         CommandLineParser parser = new GnuParser();
 
         UUID uuid = UUID.randomUUID();
+
+        Integer nthreads = null;
+        String propertiesPath = null;
+        String pidfilePath = null;
+
+        JavaExecutorFrameworkExample jefe = new JavaExecutorFrameworkExample(
+                uuid);
         
         try {
             // Parsing program parameters 
             CommandLine line = parser.parse(options, args);
 
-            int nthreads;
-                                                                                
             if (line.hasOption(PARAM_NAME_NTHREADS)) {
                 nthreads = Integer.parseInt(line.getOptionValue(
                             PARAM_NAME_NTHREADS));
             }
             else {
-                // TODO Get from properties or defautl value
+                nthreads = DEFAULT_NTHREADS;
             }
+
+            if (line.hasOption(PARAM_NAME_PROPERTIES_PATH)) {
+                propertiesPath = line.getOptionValue(
+                        PARAM_NAME_PROPERTIES_PATH);
+            }
+            else {
+                propertiesPath = DEFAULT_PROPERTIES_PATH;
+            }
+
+            if (line.hasOption(PARAM_NAME_PIDFILE_PATH)) {
+                pidfilePath = line.getOptionValue(
+                        PARAM_NAME_PIDFILE_PATH);
+            }
+            else {
+                pidfilePath = DEFAULT_PIDFILE_PATH;
+            }
+
+            return jefe.process(nthreads, propertiesPath, pidfilePath);
+
         }
         catch (Exception e) {
+            exceptionLogger.error(String.format("UUID=%s - There was an " +
+                        "exception in the program: %s", uuid, ExceptionUtils.
+                        getStackTrace(e)));
         }
 
-        return Status.SUCCESSFUL.getId();
+        return Status.FAILED.getId();
     }
 
 }

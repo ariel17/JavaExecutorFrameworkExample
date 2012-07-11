@@ -14,9 +14,14 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 
+import java.util.ArrayList;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -115,14 +120,24 @@ public class JavaExecutorFrameworkExample extends Object {
         this.loadProperties(propertiesPath);
 
         this.pidfile.setPath(pidfilePath);
+        logger.info(String.format("UUID=%s - Using PID file %s", this.uuid,
+                    pidfilePath));
         this.pidfile.lock();
 
-        Executor executor = Executors.newFixedThreadPool(nthreads);
+        logger.info(String.format("UUID=%s - Thread pool size: %d", this.uuid,
+                    nthreads));
+
+        ExecutorService executorThreadPool = Executors.newFixedThreadPool(
+                nthreads);
+
+        List<Future<UUID>> futures = new ArrayList<Future<UUID>>(nthreads);
+
         // TODO executor.execute(runnable);
 
         // TODO do some work
 
         this.pidfile.unlock();
+        return Status.SUCCESSFUL.getId();
     }
 
 
@@ -207,7 +222,6 @@ public class JavaExecutorFrameworkExample extends Object {
 
         return Status.FAILED.getId();
     }
-
 }
 
 

@@ -6,9 +6,6 @@
  *
  * @author Ariel Gerardo Rios <mailto:ariel.gerardo.rios@gmail.com>
  *
- * $Rev$
- * $LastChangedBy$
- * $LastChangedDate$
  */
 
 package org.gabrielle.example.worker;
@@ -19,11 +16,10 @@ import java.util.Date;
 import java.util.UUID;
 
 /** 
- * An example implementation of asynchronous worker, using the Callable
+ * An example implementation of an asynchronous worker, using the Callable
  * interface.
  *
  * @author Ariel Gerardo Ríos <mailto:ariel.gerardo.rios@gmail.com>
- * @version 1.00    
 */
 public class WorkerExample implements Callable<UUID>{ 
 

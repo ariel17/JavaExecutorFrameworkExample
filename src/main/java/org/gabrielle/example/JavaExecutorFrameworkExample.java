@@ -18,7 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
@@ -57,8 +56,6 @@ public class JavaExecutorFrameworkExample extends Object {
             JavaExecutorFrameworkExample.class);
 
     private static final Logger exceptionLogger = Logger.getLogger("exception");
-
-    private final Properties properties = new Properties();
 
     private final UUID uuid;
 

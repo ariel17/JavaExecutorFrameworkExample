@@ -1,9 +1,9 @@
 /**
  * PIDFile
  *
- * Handles an application lock by PID file.
+ * Handles an application lock for execution through a PID file.
  *
- * Author: Ariel Gerardo Rios <mailto:ariel.gerardo.rios@gmail.com>
+ * Author: Ariel Gerardo Ríos <mailto:ariel.gerardo.rios@gmail.com>
  */
 
 
@@ -19,27 +19,26 @@ import java.io.IOException;
  * Creates a PID file lock based
  *
  * @author Ariel Gerardo Rios <mailto:ariel.gerardo.rios@gmail.com>
- * @version 1.00    
 */
 public class PIDFile { 
 
-    private String path;
+    private final String path;
 
     /** 
      * Constructor.
      *
-     * @param path
+     * @param path The file path to lock.
      *
     */
-    public PIDFile setPath(final String path) { 
+    public PIDFile(final String path) { 
         this.path = path;
-        return this;
     }
 
     /** 
      * Locks a pid file.
      *
      * @return Boolean
+     * @throws IOException
     */
     public Boolean lock() throws IOException {
         File f = new File(this.path);
@@ -60,6 +59,7 @@ public class PIDFile {
      * Unlock the pid file, if some.
      *
      * @return Boolean
+     * @throws IOException
     */
     public Boolean unlock() throws IOException {
         File pid = new File(this.path);

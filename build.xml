@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="promotions-notifier" default="compile" basedir=".">
+	<description>
+		Executor Framework Example in Java
+    </description>
+
+	<!-- build folders and files -->
+    <property name="build.dir" value="./build" />
+	<property name="build.bin.dir" value="${build.dir}/bin" />
+	<property name="src.dir" value="./src" />
+	<property name="lib.dir" value="./lib" />
+	<property name="eclipse.bin.dir" value="./bin" />
+
+	<!-- class path -->
+	<path id="classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+    </path>
+
+    <!-- Showing help text -->
+    <target name="help" description="show available commands" >
+        <exec executable="ant" dir="." failonerror="true">
+            <arg value="-p"/>
+        </exec>
+    </target>
+
+	<!-- Target CLEAN - Clean the build folders and compiled files -->
+	<target name="clean" description="clean the build folders and compiled files">
+        <delete dir="${build.dir}" />
+        <delete dir="${eclipse.bin.dir}" />
+	</target>
+
+    <!-- Target INIT - Initializes the project structure. -->
+	<target name="init" description="Initializes the project structure.">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.bin.dir}" />
+	</target>
+
+	<!-- Target COMPILE - Compile the java classes -->
+	<target name="compile" depends="init" description="compile the java classes">
+		<javac srcdir="${src.dir}" destdir="${build.bin.dir}" debug="on" encoding="ISO-8859-1" includeantruntime="false">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+</project>

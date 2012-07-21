@@ -7,6 +7,7 @@
 	<!-- build folders and files -->
     <property name="build.dir" value="./build" />
 	<property name="build.bin.dir" value="${build.dir}/bin" />
+	<property name="build.doc.dir" value="${build.dir}/doc" />
 	<property name="src.dir" value="./src" />
 	<property name="lib.dir" value="./lib" />
 	<property name="eclipse.bin.dir" value="./bin" />
@@ -35,6 +36,7 @@
 	<target name="init" description="Initializes the project structure.">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${build.bin.dir}" />
+		<mkdir dir="${build.doc.dir}" />
 	</target>
 
 	<!-- Target COMPILE - Compile the java classes -->

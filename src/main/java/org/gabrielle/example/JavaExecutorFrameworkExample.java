@@ -87,8 +87,6 @@ public class JavaExecutorFrameworkExample extends Object {
 
         // TODO executor.execute(runnable);
 
-        // TODO do some work
-
         return Status.SUCCESSFUL.getId();
     }
 

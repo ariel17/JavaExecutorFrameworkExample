@@ -54,6 +54,10 @@ import org.javatuples.Tuple;
 */
 public class JavaExecutorFrameworkExample extends Object { 
 
+    // help parameter
+    
+    public static final String PARAM_NAME_HELP = "help";
+
     // nthreads parameter
 
     public static final String PARAM_NAME_NTHREADS = "nthreads";
@@ -110,6 +114,11 @@ public class JavaExecutorFrameworkExample extends Object {
         Options options = new Options();
         Option option;
                                                                                 
+        OptionBuilder.withArgName(PARAM_NAME_HELP);
+        OptionBuilder.withDescription("Shows this help text.");
+        option = OptionBuilder.create(PARAM_NAME_HELP);
+        options.addOption(option);
+
         OptionBuilder.withArgName(PARAM_NAME_NTHREADS);
         OptionBuilder.withDescription("Overwrites the configured value for " +
                 "the number of threads to create.");
@@ -145,6 +154,14 @@ public class JavaExecutorFrameworkExample extends Object {
         CommandLineParser parser = new GnuParser();
         CommandLine line = parser.parse(options, args);
 
+        if (line.hasOption(PARAM_NAME_HELP)) {
+            JavaExecutorFrameworkExample.showCLIHelp(
+                    "JavaExecutorFrameworkExample: A Java program as use " +
+                    "example for the Executor framework :) by Ariel " +
+                    "Gerardo Rios (ariel.gerardo.rios@gmail.com).", options);
+            System.exit(Status.SUCCESSFUL.getId());
+        }
+
         if (line.hasOption(PARAM_NAME_NTHREADS)) {
             nthreads = Integer.parseInt(line.getOptionValue(
                         PARAM_NAME_NTHREADS));
@@ -162,6 +179,14 @@ public class JavaExecutorFrameworkExample extends Object {
         }
 
         return new Pair<Integer, String>(nthreads, pidfilePath);
+    }
+
+    /** 
+     * Shows the CLI help.
+     *
+    */
+    public static void showCLIHelp(final Options options) { 
+        JavaExecutorFrameworkExample.showCLIHelp("", options);
     }
 
     /** 

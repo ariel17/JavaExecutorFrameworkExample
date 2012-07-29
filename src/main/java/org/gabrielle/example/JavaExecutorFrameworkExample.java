@@ -164,7 +164,8 @@ public class JavaExecutorFrameworkExample extends Object {
      * @throws ExecutionException 
      * @throws InterruptedException 
     */
-    public int process(final Integer nthreads) throws IOException, InterruptedException, ExecutionException {
+    public int process(final Integer nthreads) throws IOException,
+           InterruptedException, ExecutionException {
 
         logger.info(String.format("UUID=%s - Thread pool size: %d", this.uuid,
                     nthreads));
@@ -207,7 +208,7 @@ public class JavaExecutorFrameworkExample extends Object {
      * @param args The program arguments, as a String array.
      * @return 0 for successful execution, 1 instead.
     */
-    public static int main (String [] args) {
+    public static int main(String[] args) {
 
         Options options = JavaExecutorFrameworkExample.createOptions();
 

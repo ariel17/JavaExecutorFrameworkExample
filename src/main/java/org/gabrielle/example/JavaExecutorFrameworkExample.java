@@ -11,6 +11,8 @@ package org.gabrielle.example;
 
 import java.io.IOException;
 
+import java.lang.String;
+
 import java.util.ArrayList;
 
 import java.util.concurrent.ExecutionException;
@@ -24,6 +26,7 @@ import java.util.UUID;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -37,7 +40,6 @@ import org.gabrielle.example.enums.Status;
 
 import org.gabrielle.example.tasks.TaskExample;
 import org.gabrielle.example.util.PIDFile;
-
 
 import org.javatuples.Pair;
 import org.javatuples.Tuple;
@@ -71,6 +73,10 @@ public class JavaExecutorFrameworkExample extends Object {
 
     public static final int DEFAULT_NTASKS = 1000;
 
+    // execution constants
+
+    public static final String SHELL_SCRIPT_NAME = "run.sh";
+
     // Loggers
 
     private static final Logger logger = Logger.getLogger(
@@ -81,6 +87,15 @@ public class JavaExecutorFrameworkExample extends Object {
     // Other variables
 
     private final UUID uuid;
+
+    /** 
+     * Constructor.
+     *
+     * @param uuid The unique id to use in this execution.
+    */
+    public JavaExecutorFrameworkExample(final UUID uuid) {
+        this.uuid = uuid;
+    }
 
     /** 
      * Generates the Options object to use for command line argument parsing.
@@ -147,24 +162,28 @@ public class JavaExecutorFrameworkExample extends Object {
     }
 
     /** 
-     * Constructor.
+     * Shows the CLI help with a customized message.
      *
-     * @param uuid The unique id to use in this execution.
+     * @param message A message to show.
     */
-    public JavaExecutorFrameworkExample(final UUID uuid) {
-        this.uuid = uuid;
+    public static void showCLIHelp(final String message, final Options
+            options) { 
+        System.out.println(message);
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp(String.format("./%s", SHELL_SCRIPT_NAME),
+                options);
     }
 
     /** 
      * Process required tasks, with validated parameters.
      *
      * @param nthreads The number of threads to execute or null.
-     * @return The execution status, as integer.
+     * @return The execution status, as Status.
      * @throws IOException 
      * @throws ExecutionException 
      * @throws InterruptedException 
     */
-    public int process(final Integer nthreads) throws IOException,
+    public Status process(final Integer nthreads) throws IOException,
            InterruptedException, ExecutionException {
 
         logger.info(String.format("UUID=%s - Thread pool size: %d", this.uuid,
@@ -199,7 +218,7 @@ public class JavaExecutorFrameworkExample extends Object {
         // TODO Here goes some general processing with all task results
 
         // Returning a general processing result
-        return Status.SUCCESSFUL.getId();
+        return Status.SUCCESSFUL;
     }
 
     /** 
@@ -208,7 +227,7 @@ public class JavaExecutorFrameworkExample extends Object {
      * @param args The program arguments, as a String array.
      * @return 0 for successful execution, 1 instead.
     */
-    public static int main(String[] args) {
+    public static void main(String[] args) {
 
         Options options = JavaExecutorFrameworkExample.createOptions();
 
@@ -234,8 +253,13 @@ public class JavaExecutorFrameworkExample extends Object {
             logger.info(String.format("UUID=%s - Locked PID file: %s", uuid,
                         pidfile));
 
-            return jefe.process(nthreads);
-
+            Status status = jefe.process(nthreads);
+            System.exit(status.getId());
+        }
+        catch (ParseException pe) {
+            JavaExecutorFrameworkExample.showCLIHelp(String.format("There was" +
+                        " an error parsing arguments: %s",
+                        ExceptionUtils.getStackTrace(pe)), options);
         }
         catch (Exception e) {
             exceptionLogger.error(String.format("UUID=%s - There was an " +
@@ -257,7 +281,7 @@ public class JavaExecutorFrameworkExample extends Object {
             }
         }
 
-        return Status.FAILED.getId();
+        System.exit(Status.FAILED.getId());
     }
 }
 

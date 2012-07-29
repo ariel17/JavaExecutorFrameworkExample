@@ -56,12 +56,12 @@ public class TaskExample implements Callable<UUID>{
         Date now = new Date();
 
         if (now.getTime() % 2 == 0) {  // time is par
-            throw new Exception("Ups! An exception inside a worker...");
+            throw new Exception("Ups! An exception inside a task...");
         }
 
         UUID random_uuid = UUID.randomUUID();
         logger.info(String.format("UUID=%s - %s finished. Returning: UUID=%s.",
-                    this.uuid, random_uuid));
+                    this.uuid, this.getClass().getName(), random_uuid));
 
         return random_uuid;
     }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<project name="promotions-notifier" default="compile" basedir=".">
+<project name="JavaExecutorFrameworkExample" default="compile" basedir=".">
 	<description>
 		Executor Framework Example in Java
     </description>

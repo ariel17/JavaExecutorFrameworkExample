@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
  
 # Executes this application hidding the complexity in calling a Java binary.
 

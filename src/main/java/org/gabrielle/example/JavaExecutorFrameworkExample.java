@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import java.util.List;
 import java.util.UUID;
@@ -76,6 +77,8 @@ public class JavaExecutorFrameworkExample extends Object {
     // execution constants
 
     public static final String SHELL_SCRIPT_NAME = "run.sh";
+
+    public static final int DEFAULT_WAIT_TIME = 10;  // seconds
 
     // Loggers
 
@@ -186,6 +189,9 @@ public class JavaExecutorFrameworkExample extends Object {
     public Status process(final Integer nthreads) throws IOException,
            InterruptedException, ExecutionException {
 
+        logger.info(String.format("UUID=%s - *** Program example finished ***",
+                    this.uuid));
+
         logger.info(String.format("UUID=%s - Thread pool size: %d", this.uuid,
                     nthreads));
 
@@ -207,18 +213,41 @@ public class JavaExecutorFrameworkExample extends Object {
         // Getting the tasks processing results
         UUID task_uuid;
         for(Future<UUID> future : futures){
-            task_uuid = future.get();
-            logger.info(String.format("UUID=%s - Tasks process result: %s",
-                        this.uuid, task_uuid));
+            try {
+                task_uuid = future.get();
+                logger.info(String.format("UUID=%s - Tasks process result: %s",
+                            this.uuid, task_uuid));
+            }
+            catch (Exception e) {
+                exceptionLogger.error(String.format("UUID=%s - There was an " +
+                            "exception in the program: %s", uuid,
+                            ExceptionUtils.getStackTrace(e)));
+            }
         }
 
         // Asking to all threads to shut down.
+        logger.info(String.format("UUID=%s - Shutting down the thread pool.",
+                    this.uuid));
         executorThreadPool.shutdown();
+
+        // Checking for correct for pool shutdown
+        if (!executorThreadPool.awaitTermination(DEFAULT_WAIT_TIME,
+                    TimeUnit.SECONDS)) {
+            logger.warn(String.format("UUID=%s - Pool is still running; " +
+                        "forcing to shutdown now.", this.uuid));
+            executorThreadPool.shutdownNow();
+        }
 
         // TODO Here goes some general processing with all task results
 
+        Status status = Status.SUCCESSFUL;
+        logger.info(String.format("UUID=%s - Process result: %s", this.uuid,
+                    status));
+        logger.info(String.format("UUID=%s - *** Program example finished ***",
+                    this.uuid));
+
         // Returning a general processing result
-        return Status.SUCCESSFUL;
+        return status;
     }
 
     /** 
@@ -281,6 +310,8 @@ public class JavaExecutorFrameworkExample extends Object {
             }
         }
 
+        logger.info(String.format("UUID=%s - *** Program example finished ***",
+                    uuid));
         System.exit(Status.FAILED.getId());
     }
 }

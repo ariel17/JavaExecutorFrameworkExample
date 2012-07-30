@@ -1,7 +1,7 @@
 JavaExecutorFrameworkExample
 =============================
 
-An example of using the Executor framework in Java.
+An example of using the Executor framework in Java. This program shows how to process enqueued simple tasks (they only generates random UUID values and returns them) using threads. Also shows how to manage exceptions raised inside the thread, since the task implements the [Callable interface](http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/Callable.html).
 
 
 How to compile the code

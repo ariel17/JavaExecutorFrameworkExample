@@ -24,6 +24,18 @@ Once compiled, you can run the program example by entering the following:
     $ chmod +x ./src/main/scripts/run.sh  # execution permission to the shell script
     $ ./src/main/scripts/run.sh
 
+### Changing the behaviour
+
+* Overwritting the number of threads to spawn
+
+    $ # Spawn 10 threads for processing tasks in this execution
+    $ ./src/main/scripts/run.sh -nthreads 10
+
+* Changing the path for pidfile
+
+    $ # Placing the pidfile somewhere else
+    $ ./src/main/scripts/run.sh -pidfile /var/run/pidfile-example
+
 
 Need help?
 ----------
